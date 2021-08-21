@@ -53,6 +53,11 @@ class ProductPageTest {
     }
 
     @Test
+    public void textProductCategory() {
+        Assertions.assertEquals(productPage.category.getText().strip(), "Romance");
+    }
+
+    @Test
     public void textProductInfo() {
         Map<String, String> infos = productPage.getProductInfo();
         Assertions.assertEquals(infos.get("Availability"), "19");

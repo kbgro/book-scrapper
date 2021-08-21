@@ -30,6 +30,9 @@ public class ProductPage {
     @FindBy(css = "#product_description + p")
     WebElement description;
 
+    @FindBy(css = "ul.breadcrumb li:nth-last-child(2)")
+    WebElement category;
+
     @FindBy(css = ".product_page table tr")
     List<WebElement> productInfo;
 
