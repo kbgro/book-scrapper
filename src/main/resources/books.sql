@@ -1,5 +1,3 @@
-CREATE DATABASE BOOKSCRAPPER;
-use BOOKSCRAPPER;
 CREATE TABLE books
 (
     id              VARCHAR(32) PRIMARY KEY,
@@ -10,5 +8,5 @@ CREATE TABLE books
     tax             NUMERIC(9, 2),
     price           NUMERIC(9, 2),
     stock           INTEGER,
-    numberOfReviews INTEGER,
+    numberOfReviews INTEGER
 );
