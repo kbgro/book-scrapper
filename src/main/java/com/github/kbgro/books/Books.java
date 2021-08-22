@@ -8,12 +8,15 @@ import com.github.kbgro.books.pages.ProductPage;
 import com.github.kbgro.books.pages.SinglePage;
 import com.github.kbgro.books.utils.Util;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.Signal;
 
 
+import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -29,9 +32,9 @@ public class Books {
     private static final Logger logger = LoggerFactory.getLogger(Books.class);
     private Map<String, WebElement> categoryLinks;
     private Set<String> categories;
-    private WebDriver driver;
+    private static WebDriver driver;
     private Model model;
-    Connection conn;
+    private static Connection conn;
 
 
     public void setUp() throws Exception {
@@ -65,13 +68,15 @@ public class Books {
     }
 
     public void tearDown() {
-        logger.info("Shutting down driver.");
-        driver.quit();
         try {
             logger.info("Closing DB Connection.");
             conn.close();
+
+            logger.info("Shutting down driver.");
+            driver.quit();
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (WebDriverException ignored) {
         }
     }
 
@@ -129,18 +134,26 @@ public class Books {
     /**
      * Main Function
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+        final Books books = new Books();
+
+        Signal.handle(new Signal("INT"),  // SIGINT
+                signal -> {
+                    if (books != null)
+                        books.tearDown();
+                    System.out.println("Interrupted by Ctrl+C");
+                });
+
+
         logger.info("Starting Application");
-        Books books = null;
+
         try {
-            books = new Books();
             books.scrapeE2E();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (WebDriverException ignored) {
         } finally {
             if (books != null)
                 books.tearDown();
+
         }
-        logger.info("Exiting Application");
     }
 }
