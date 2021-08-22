@@ -1,5 +1,6 @@
-package com.github.kbgro.books;
+package com.github.kbgro.books.pages;
 
+import com.github.kbgro.books.pages.SinglePage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

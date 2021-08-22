@@ -1,4 +1,4 @@
-package com.github.kbgro.books;
+package com.github.kbgro.books.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
