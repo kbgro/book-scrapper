@@ -25,9 +25,50 @@ public class SinglePage {
     @FindBy(css = "ol.row li .image_container>a")
     List<WebElement> productLinks;
 
+    String currentText;
+    String nextLink;
+    String previousLink;
+    boolean hasNextLink;
+    boolean hasPrevLink;
+
     public SinglePage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
+        initLinks();
+    }
+
+    /**
+     * Initializes *Links members. This is to avoid not Such Element when a get is called on driver
+     * element and webpage changes
+     */
+    public void initLinks() {
+        if (hasPrevPage())
+            previousLink = previous.getAttribute("href");
+        else previousLink = null;
+
+        if (hasNextPage())
+            nextLink = next.getAttribute("href");
+        else nextLink = null;
+
+        try {
+            currentText = current.getText().strip();
+        } catch (NoSuchElementException ignored) {
+            currentText = "Page 1 of 1";
+        }
+        hasNextLink = nextPrevElement("ul.pager li.next a") != null;
+        hasPrevLink = nextPrevElement("ul.pager li.previous a") != null;
+    }
+
+    public String getPreviousLink() {
+        return previousLink;
+    }
+
+    public String getPageNumber() {
+        return currentText;
+    }
+
+    public String getNextLink() {
+        return nextLink;
     }
 
     public boolean hasNextPage() {
@@ -36,6 +77,14 @@ public class SinglePage {
 
     public boolean hasPrevPage() {
         return nextPrevElement("ul.pager li.previous a") != null;
+    }
+
+    public boolean hasNextLink() {
+        return hasNextLink;
+    }
+
+    public boolean hasPrevLink() {
+        return hasPrevLink;
     }
 
     public List<String> getProductLinks() {

@@ -1,6 +1,5 @@
 package com.github.kbgro.books.pages;
 
-import com.github.kbgro.books.pages.SinglePage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +41,7 @@ class SinglePageTest {
     @Test
     public void testPrevPage() {
         Assertions.assertFalse(singlePage.hasPrevPage());
+        Assertions.assertFalse(singlePage.hasPrevLink());
         Assertions.assertThrows(NoSuchElementException.class, () -> singlePage.previous.getText()
         );
     }
@@ -51,6 +51,7 @@ class SinglePageTest {
         driver.get("https://books.toscrape.com/catalogue/page-2.html");
         Assertions.assertTrue(singlePage.hasNextPage());
         Assertions.assertTrue(singlePage.hasPrevPage());
+        Assertions.assertNotNull(singlePage.getPreviousLink());
         Assertions.assertEquals(singlePage.current.getText().strip(), "Page 2 of 50");
     }
 
