@@ -3,21 +3,68 @@ package com.github.kbgro.books.models;
 import java.math.BigDecimal;
 
 public class Product {
-    String id;
-    String title;
-    String description;
-    String imageUrl;
-    String category;
-    BigDecimal tax;
-    BigDecimal price;
-    int stock;
-    int numberOfReviews;
+    private  String id;
+    private  String title;
+    private  String description;
+    private  String imageUrl;
+    private  String category;
+    private  BigDecimal tax;
+    private  BigDecimal price;
+    private  int stock;
+    private  int numberOfReviews;
 
-    public Product(String id, String title, String description, String imageUrl) {
+    public Product() {}
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public BigDecimal getTax() {
+        return tax;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public int getNumberOfReviews() {
+        return numberOfReviews;
     }
 
     public void setCategory(String category) {
@@ -38,10 +85,5 @@ public class Product {
 
     public void setNumberOfReviews(int numberOfReviews) {
         this.numberOfReviews = numberOfReviews;
-    }
-
-    public String sqlString() {
-        return String.format("INSERT INTO books VALUES ('%1$s','%2$s','%3$s','%4$s','%5$s',%6$s,%7$s,%8$s,%9$s)",
-                id, title, description, imageUrl, category, tax, price, stock, numberOfReviews);
     }
 }
