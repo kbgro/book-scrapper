@@ -44,6 +44,22 @@ public class ProductPage {
         return extractMoney(price);
     }
 
+    public String getTitle() {
+        return title.getText().strip();
+    }
+
+    public String getDescription() {
+        return description.getText().strip();
+    }
+
+    public String getProductImageUrl() {
+        return productImage.getAttribute("src").strip();
+    }
+
+    public String getCategory() {
+        return category.getText().strip();
+    }
+
     public Map<String, String> getProductInfo() {
         Map<String, String> productInfos = new HashMap<>();
         for (final WebElement tr : productInfo) {
