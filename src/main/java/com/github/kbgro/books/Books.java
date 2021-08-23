@@ -7,16 +7,14 @@ import com.github.kbgro.books.pages.HomePage;
 import com.github.kbgro.books.pages.ProductPage;
 import com.github.kbgro.books.pages.SinglePage;
 import com.github.kbgro.books.utils.Util;
+import com.mysql.cj.jdbc.exceptions.CommunicationsException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Signal;
 
-
-import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -30,7 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Books {
     private static final Logger logger = LoggerFactory.getLogger(Books.class);
-    private Map<String, WebElement> categoryLinks;
+    private static final String BOOK_URL = "https://books.toscrape.com";
+    private Map<String, String> categoryLinks;
     private Set<String> categories;
     private static WebDriver driver;
     private Model model;
@@ -42,7 +41,7 @@ public class Books {
         driver = new FirefoxDriver();
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("https://books.toscrape.com");
+        driver.get(BOOK_URL);
 
         logger.info("Creating db Connection");
         Properties prop = Util.getBooksProperties();
@@ -63,7 +62,7 @@ public class Books {
 
         logger.info("Collecting Homepage");
         HomePage homePage = new HomePage(driver);
-        categoryLinks = homePage.titledCategories();
+        categoryLinks = homePage.getCategoryLinks();
         categories = categoryLinks.keySet();
     }
 
@@ -89,23 +88,42 @@ public class Books {
      *
      * @param category book category name
      */
-    public void scrapeByCategory(String category) {
+    public void scrapeByCategory(String category) throws Exception {
+        logger.info("[ Category ] Starting");
+        if (!categories.contains(category)) {
+            logger.warn("No such category");
+            throw new Exception(String.format("scrapeByCategory:: No such '%s' category", category));
+        }
+        driver.get(categoryLinks.get(category));
+        SinglePage singlePage = new SinglePage(driver);
+        scrapeNext(singlePage);
+        logger.info("[ Category ] Finishing!");
     }
 
     /**
      * Scape whole site.
      */
-    public void scrapeE2E() throws SQLException, InterruptedException {
+    public void scrapeE2E() throws SQLException {
         logger.info("[ E2E ] Starting E2E");
-        SinglePage singlePage = null;
+        driver.get(BOOK_URL);
+        SinglePage singlePage = new SinglePage(driver);
+        scrapeNext(singlePage);
+        logger.info("[ E2E ] Stopping E2E");
+    }
 
+    public void scrapeNext(SinglePage startPage) throws SQLException {
+        SinglePage singlePage = startPage;
+        boolean started = false;
         do {
-            if (singlePage != null) {
+            if (singlePage != null && started) {
                 driver.get(singlePage.getNextLink());
-                Thread.sleep(1500);
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException ignored) {
+                }
             }
             singlePage = new SinglePage(driver);
-            String starter = String.format("[ E2E ] ( %s ):", singlePage.getPageNumber());
+            String starter = String.format("[ scrapeNext ] ( %s ):", singlePage.getPageNumber());
 
             logger.info("{} Starting E2E", starter);
             List<String> productLinks = singlePage.getProductLinks();
@@ -125,35 +143,39 @@ public class Books {
                 logger.info("{} Insertion for , Product with Id:: " + product.getId() + " to Database successful!", starter);
 
                 itemNumber++;
+                if (!started) started = true;
             }
         } while (singlePage.hasNextLink());
-
-        logger.info("[ E2E ] Stopping E2E");
     }
 
     /**
      * Main Function
      */
-    public static void main(String[] args) throws Exception {
-        final Books books = new Books();
-
-        Signal.handle(new Signal("INT"),  // SIGINT
-                signal -> {
-                    if (books != null)
-                        books.tearDown();
-                    System.out.println("Interrupted by Ctrl+C");
-                });
-
-
+    public static void main(String[] args) {
         logger.info("Starting Application");
 
+        Books books = null;
         try {
-            books.scrapeE2E();
+            books = new Books();
+            final Books finalBooks = books;
+
+            Signal.handle(new Signal("INT"),  // SIGINT
+                    signal -> {
+                        finalBooks.tearDown();
+                        System.out.println("Interrupted by Ctrl+C");
+                    });
+
+//            books.scrapeE2E();
+            books.scrapeByCategory("Romance");
         } catch (WebDriverException ignored) {
+
+        } catch (CommunicationsException ignored) {
+            System.out.println("Check Database status if running");
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (books != null)
                 books.tearDown();
-
         }
     }
 }
