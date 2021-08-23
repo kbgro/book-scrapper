@@ -11,6 +11,7 @@ import com.mysql.cj.jdbc.exceptions.CommunicationsException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Signal;
@@ -38,7 +39,9 @@ public class Books {
 
     public void setUp() throws Exception {
         logger.info("Setting Up Books...");
-        driver = new FirefoxDriver();
+        FirefoxOptions options = new FirefoxOptions();
+        options.setHeadless(true);
+        driver = new FirefoxDriver(options);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.get(BOOK_URL);
@@ -113,17 +116,17 @@ public class Books {
 
     public void scrapeNext(SinglePage startPage) throws SQLException {
         SinglePage singlePage = startPage;
+        String starter = String.format("[ scrapeNext ] ( %s ):", singlePage.getPageNumber());
         boolean started = false;
         do {
-            if (singlePage != null && started) {
+            if (started) {
                 driver.get(singlePage.getNextLink());
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException ignored) {
                 }
+                singlePage = new SinglePage(driver);
             }
-            singlePage = new SinglePage(driver);
-            String starter = String.format("[ scrapeNext ] ( %s ):", singlePage.getPageNumber());
 
             logger.info("{} Starting E2E", starter);
             List<String> productLinks = singlePage.getProductLinks();
@@ -145,7 +148,8 @@ public class Books {
                 itemNumber++;
                 if (!started) started = true;
             }
-        } while (singlePage.hasNextLink());
+        }
+        while (singlePage.hasNextLink());
     }
 
     /**
@@ -166,7 +170,7 @@ public class Books {
                     });
 
 //            books.scrapeE2E();
-            books.scrapeByCategory("Romance");
+            books.scrapeByCategory("History");
         } catch (WebDriverException ignored) {
 
         } catch (CommunicationsException ignored) {
