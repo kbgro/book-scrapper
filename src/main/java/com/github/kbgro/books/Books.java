@@ -6,15 +6,15 @@ import com.github.kbgro.books.models.Product;
 import com.github.kbgro.books.pages.HomePage;
 import com.github.kbgro.books.pages.ProductPage;
 import com.github.kbgro.books.pages.SinglePage;
+import com.github.kbgro.books.utils.Env;
 import com.github.kbgro.books.utils.Util;
 import com.mysql.cj.jdbc.exceptions.CommunicationsException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Signal;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,7 +22,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -39,23 +38,25 @@ public class Books {
 
     public void setUp() throws Exception {
         logger.info("Setting Up Books...");
-        FirefoxOptions options = new FirefoxOptions();
+        ChromeOptions options = new ChromeOptions();
         options.setHeadless(true);
-        driver = new FirefoxDriver(options);
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         driver.get(BOOK_URL);
 
         logger.info("Creating db Connection");
-        Properties prop = Util.getBooksProperties();
-        String dbUrl = prop.getProperty("DB_URL");
-        String dbUser = prop.getProperty("DB_USER");
-        String dbPassword = prop.getProperty("DB_PASSWORD");
+//        Properties prop = Util.getBooksProperties();
+        Env env = new Env();
+        String dbUrl = env.getEnv("DB_URL");
+        String dbUser = env.getEnv("DB_USER");
+        String dbPassword = env.getEnv("DB_PASSWORD");
         conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
 
         logger.info("Creating Table App Start.");
         Util.executeSqlScript(conn);
         logger.info("Clearing Table...");
+        //noinspection SqlWithoutWhere
         PreparedStatement statement = conn.prepareStatement("DELETE FROM books.books");
         statement.executeUpdate();
         statement.close();
@@ -114,6 +115,7 @@ public class Books {
         logger.info("[ E2E ] Stopping E2E");
     }
 
+    @SuppressWarnings("BusyWait")
     public void scrapeNext(SinglePage startPage) throws SQLException {
         SinglePage singlePage = startPage;
         String starter = String.format("[ scrapeNext ] ( %s ):", singlePage.getPageNumber());
@@ -163,11 +165,10 @@ public class Books {
             books = new Books();
             final Books finalBooks = books;
 
-            Signal.handle(new Signal("INT"),  // SIGINT
-                    signal -> {
-                        finalBooks.tearDown();
-                        System.out.println("Interrupted by Ctrl+C");
-                    });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                finalBooks.tearDown();
+                System.out.println("Interrupted by Ctrl+C");
+            }));
 
 //            books.scrapeE2E();
             books.scrapeByCategory("History");
