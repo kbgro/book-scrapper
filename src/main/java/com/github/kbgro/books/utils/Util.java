@@ -51,12 +51,13 @@ public class Util {
         String db = envs.get("MYSQL_DATABASE");
         String user = envs.get("MYSQL_USER");
         String password = envs.get("MYSQL_PASSWORD");
+        String dbUrl = envs.get("DB_URL");
 
         if (db == null || user == null || password == null) {
             throw new Exception("Set MYSQL_DATABASE, MYSQL_USER and MYSQL_PASSWORD environmental variables.");
         }
 
-        prop.setProperty("DB_URL", "jdbc:mysql://localhost:3306/" + db);
+        prop.setProperty("DB_URL", dbUrl);
         prop.setProperty("DB_USER", user);
         prop.setProperty("DB_PASSWORD", password);
         return prop;

@@ -33,7 +33,6 @@ public class HomePage {
     }
 
     private void setCategoryLinks() {
-        Map<String, WebElement> cat = new HashMap<>();
         for (final WebElement link : categories) {
             categoryLinks.put(link.getText(), link.getAttribute("href"));
         }
