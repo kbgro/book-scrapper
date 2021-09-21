@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    hostname: "bookstore"
+    env_file:
+      - .env
+    ports:
+      - "13306:3306"
+    volumes:
+      - $HOME/storage/docker/mysql-datadir:/var/lib/mysql
