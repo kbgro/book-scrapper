@@ -21,9 +21,6 @@ class SinglePageTest {
         driver = new FirefoxDriver();
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("https://books.toscrape.com");
-
-        singlePage = new SinglePage(driver);
     }
 
     @AfterEach
@@ -34,12 +31,15 @@ class SinglePageTest {
     @Test
     public void testNextPage() {
         driver.get("https://books.toscrape.com/catalogue/page-50.html");
+        singlePage = new SinglePage(driver);
         Assertions.assertFalse(singlePage.hasNextPage());
         Assertions.assertThrows(NoSuchElementException.class, () -> singlePage.next.getText());
     }
 
     @Test
     public void testPrevPage() {
+        driver.get("https://books.toscrape.com");
+        singlePage = new SinglePage(driver);
         Assertions.assertFalse(singlePage.hasPrevPage());
         Assertions.assertFalse(singlePage.hasPrevLink());
         Assertions.assertThrows(NoSuchElementException.class, () -> singlePage.previous.getText()
@@ -49,6 +49,7 @@ class SinglePageTest {
     @Test
     public void testNextPrevPage() {
         driver.get("https://books.toscrape.com/catalogue/page-2.html");
+        singlePage = new SinglePage(driver);
         Assertions.assertTrue(singlePage.hasNextPage());
         Assertions.assertTrue(singlePage.hasPrevPage());
         Assertions.assertNotNull(singlePage.getPreviousLink());
@@ -57,6 +58,8 @@ class SinglePageTest {
 
     @Test
     public void testProductLinks() {
+        driver.get("https://books.toscrape.com");
+        singlePage = new SinglePage(driver);
         Assertions.assertEquals(singlePage.getProductLinks().size(), 20);
         List<String> links = singlePage.getProductLinks();
         Assertions.assertTrue(links.get(0).contains("https://books.toscrape.com/catalogue/"));
