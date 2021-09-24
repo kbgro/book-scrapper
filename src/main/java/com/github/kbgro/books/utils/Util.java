@@ -1,13 +1,10 @@
 package com.github.kbgro.books.utils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -42,11 +39,24 @@ public class Util {
         scanner.close();
     }
 
-    public static String padRight(String s, int n) {
-        return String.format("%-" + n + "s", s);
+    public static Properties getBooksProperties() {
+        String propFileName = "config.properties";
+        Properties prop = new Properties();
+
+        try (InputStream inputStream = Util.class.getClassLoader().getResourceAsStream(propFileName)) {
+
+            if (inputStream != null) {
+                prop.load(inputStream);
+            } else {
+                throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+            }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        return prop;
     }
 
-    public static String padLeft(String s, int n) {
-        return String.format("%" + n + "s", s);
+    public static String padRight(String s, int n) {
+        return String.format("%-" + n + "s", s);
     }
 }
