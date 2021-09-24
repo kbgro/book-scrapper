@@ -42,21 +42,11 @@ public class Util {
         scanner.close();
     }
 
-    public static Properties getBooksProperties() throws Exception {
-        Map<String, String> envs = System.getenv();
-        Properties prop = new Properties();
-        String db = envs.get("MYSQL_DATABASE");
-        String user = envs.get("MYSQL_USER");
-        String password = envs.get("MYSQL_PASSWORD");
-        String dbUrl = envs.get("DB_URL");
+    public static String padRight(String s, int n) {
+        return String.format("%-" + n + "s", s);
+    }
 
-        if (db == null || user == null || password == null) {
-            throw new Exception("Set MYSQL_DATABASE, MYSQL_USER and MYSQL_PASSWORD environmental variables.");
-        }
-
-        prop.setProperty("DB_URL", dbUrl);
-        prop.setProperty("DB_USER", user);
-        prop.setProperty("DB_PASSWORD", password);
-        return prop;
+    public static String padLeft(String s, int n) {
+        return String.format("%" + n + "s", s);
     }
 }
