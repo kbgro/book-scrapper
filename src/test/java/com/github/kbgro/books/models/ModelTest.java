@@ -2,6 +2,7 @@ package com.github.kbgro.books.models;
 
 import com.github.kbgro.books.factory.SimpleProductFactory;
 import com.github.kbgro.books.pages.ProductPage;
+import com.github.kbgro.books.utils.Env;
 import com.github.kbgro.books.utils.Util;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -25,11 +26,11 @@ class ModelTest {
     private static Product product;
 
     @BeforeAll
-    static void setUp() throws Exception {
-        Properties prop = Util.getBooksProperties();
-        dbUrl = prop.getProperty("DB_URL");
-        dbUser = prop.getProperty("DB_USER");
-        dbPassword = prop.getProperty("DB_PASSWORD");
+    static void setUp() {
+        Env env = new Env();
+        dbUrl = env.getEnv("DB_URL");
+        dbUser = env.getEnv("DB_USER");
+        dbPassword = env.getEnv("DB_PASSWORD");
 
         driver = new FirefoxDriver();
         driver.manage().window().maximize();

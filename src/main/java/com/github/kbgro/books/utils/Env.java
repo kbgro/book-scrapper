@@ -23,9 +23,7 @@ public class Env {
     public void loadEnv() {
         Path pwd = Paths.get(System.getProperty("user.dir"));
         Path envPath = pwd.resolve(".env");
-        System.out.println(envPath);
         loadEnv(envPath);
-        System.out.println(envMap);
     }
 
     public void loadEnv(Path filepath) {
