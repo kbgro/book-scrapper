@@ -2,6 +2,7 @@ package com.github.kbgro.books.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -14,14 +15,10 @@ public class Util {
     public static void executeSqlScript(Connection conn) {
         String delimiter = ";";
         Scanner scanner;
-        String file = Objects.requireNonNull(Util.class.getClassLoader().getResource("books.sql")).getFile();
+        InputStream stream = Util.class.getClassLoader().getResourceAsStream("books.sql");
 
-        try {
-            scanner = new Scanner(new File(file)).useDelimiter(delimiter);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            return;
-        }
+        assert stream != null;
+        scanner = new Scanner(stream).useDelimiter(delimiter);
 
         Statement currentStatement = null;
         while (scanner.hasNext()) {
