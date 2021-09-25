@@ -1,5 +1,7 @@
 package com.github.kbgro.books.models;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.math.BigDecimal;
 
 public class Product {
@@ -91,6 +93,6 @@ public class Product {
     @Override
     public String toString() {
         return String.format("%s,%s,%s,%s,%s,%s,%s,%d,%d",
-                id, title, description, imageUrl, category, tax, price, stock, numberOfReviews);
+                id, title, StringEscapeUtils.escapeCsv(description), imageUrl, category, tax, price, stock, numberOfReviews);
     }
 }

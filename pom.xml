@@ -23,7 +23,7 @@
               <archive>
                 <manifest>
                   <mainClass>
-                    com.github.kbgro.books.Books
+                    com.github.kbgro.books.App
                   </mainClass>
                 </manifest>
               </archive>
@@ -54,6 +54,13 @@
   </properties>
 
   <dependencies>
+    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.9</version>
+    </dependency>
+
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
