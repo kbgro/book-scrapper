@@ -44,17 +44,13 @@ public class App {
      * Main Function
      */
     public static void main(String[] args) {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            App.tearDown();
-            System.out.println("Interrupted by Ctrl+C");
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(App::tearDown));
 
         Cli c = new Cli();
 
         try {
             c.parse(args);
             c.validate();
-            System.out.println(c.getMap());
 
             int limit = Integer.parseInt(c.getMap().getOrDefault("-l", String.valueOf(0)));
             BooksRepository repository;
