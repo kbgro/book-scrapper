@@ -3,6 +3,7 @@ package com.github.kbgro.books;
 import com.github.kbgro.books.books.Books;
 import com.github.kbgro.books.cli.Cli;
 import com.github.kbgro.books.cli.Command.CategoryCommand;
+import com.github.kbgro.books.cli.Command.ListCategoriesCommand;
 import com.github.kbgro.books.cli.Command.PageCommand;
 import com.github.kbgro.books.cli.Option;
 import com.github.kbgro.books.factory.ConnectionFactory;
@@ -15,6 +16,7 @@ import org.openqa.selenium.WebDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -27,13 +29,15 @@ public class App {
 
     public static void tearDown() {
         try {
-            logger.info("Closing DB Connection.");
             if (conn != null) {
+                logger.info("Closing DB Connection.");
                 conn.close();
             }
 
-            logger.info("Shutting down driver.");
-            driver.quit();
+            if (driver != null) {
+                logger.info("Shutting down driver.");
+                driver.quit();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (WebDriverException ignored) {
@@ -52,6 +56,11 @@ public class App {
             c.parse(args);
             c.validate();
 
+            if (c.getMap().containsKey("-h")) {
+                System.out.println(c.help());
+                System.exit(0);
+            }
+
             int limit = Integer.parseInt(c.getMap().getOrDefault("-l", String.valueOf(0)));
             BooksRepository repository;
             driver = DriverFactory.getDriver();
@@ -60,13 +69,25 @@ public class App {
                 conn = ConnectionFactory.getConnection(c.getMap().get("-dbUrl"), c.getMap().get("-u"), c.getMap().get("-p"));
                 repository = new DbRepository(conn);
             } else {
-                repository = new CsvRepository(c.getMap().get("-o"));
+                String filename = c.getMap().getOrDefault("-o", "");
+                if (filename.equals("")) {
+                    File tempFile = File.createTempFile("prefix-", "-suffix");
+                    tempFile.deleteOnExit();
+                }
+                repository = new CsvRepository(filename);
             }
+
+            logger.info("Starting Application...");
 
             Books books = new Books(repository, driver, limit);
 
             Option option = new Option();
 
+            if (c.getMap().containsKey("-lc")) {
+                String res = option.executeCommand(new ListCategoriesCommand(books));
+                System.out.println(res);
+                System.exit(0);
+            }
             if (c.getMap().containsKey("-c")) {
                 option.executeCommand(new CategoryCommand(books, c.getMap().get("-c")));
             } else if (c.getMap().containsKey("-page")) {
@@ -74,8 +95,11 @@ public class App {
             } else if (c.getMap().containsKey("-all")) {
                 option.executeCommand(new PageCommand(books, Integer.parseInt(c.getMap().get("-all"))));
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
             System.out.println(c.help());
         }
+
+        logger.info("Exiting Application...");
     }
 }

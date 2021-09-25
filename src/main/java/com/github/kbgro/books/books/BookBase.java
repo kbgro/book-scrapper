@@ -7,10 +7,12 @@ import com.github.kbgro.books.pages.HomePage;
 import com.github.kbgro.books.pages.ProductPage;
 import com.github.kbgro.books.pages.SinglePage;
 import com.github.kbgro.books.repository.BooksRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,15 +30,29 @@ public abstract class BookBase {
     protected int processedLinks;
     protected int limit = 0;
 
-    public BookBase(BooksRepository repository, WebDriver driver) {
-        this.booksRepository = repository;
-        this.driver = driver;
-
-        logger.info("Collecting Homepage");
-
+    public void loadHome() {
+        if (categories != null)
+            return;
+        driver.get(BOOK_URL);
         HomePage homePage = new HomePage(driver);
         categoryLinks = homePage.getCategoryLinks();
         categories = categoryLinks.keySet();
+        logger.debug(String.valueOf(categoryLinks));
+        logger.debug(String.valueOf(categoryLinks.values()));
+    }
+
+    public BookBase(BooksRepository repository, WebDriver driver) {
+        this.booksRepository = repository;
+        this.driver = driver;
+        loadHome();
+    }
+
+    public String getCategoriesNames() {
+        logger.info("Collecting Homepage");
+
+        Object[] results = categoryLinks.keySet().toArray();
+        Arrays.sort(results);
+        return StringUtils.join(results, "\n");
     }
 
     /**
