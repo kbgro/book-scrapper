@@ -12,6 +12,8 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/dataSources.xml
+.idea/sqldialects.xml
 
 # AWS User-specific
 .idea/**/aws.xml
@@ -170,6 +172,7 @@ buildNumber.properties
 .ionide
 
 # env
-.env
+*.env
 !sample.env
+*.csv
 # End of https://www.toptal.com/developers/gitignore/api/intellij,maven,java,visualstudiocode

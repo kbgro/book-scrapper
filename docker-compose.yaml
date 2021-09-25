@@ -5,7 +5,7 @@ services:
     restart: always
     hostname: "bookstore"
     env_file:
-      - .env
+      - db.env
     ports:
       - "13306:3306"
     volumes:

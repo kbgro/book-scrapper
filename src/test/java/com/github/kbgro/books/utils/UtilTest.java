@@ -6,27 +6,26 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 class UtilTest {
     @Test
-    public void testProperties() {
+    public void testEnv() {
         try {
-            Properties prop = Util.getBooksProperties();
-            Assertions.assertNotNull(prop.getProperty("DB_URL"));
-            Assertions.assertNotNull(prop.getProperty("DB_USER"));
-            Assertions.assertNotNull(prop.getProperty("DB_PASSWORD"));
+            Env env = new Env();
+            Assertions.assertNotNull(env.getEnv("DB_URL"));
+            Assertions.assertNotNull(env.getEnv("DB_USER"));
+            Assertions.assertNotNull(env.getEnv("DB_PASSWORD"));
         } catch (Exception noEnvironmentException) {
             noEnvironmentException.printStackTrace();
         }
     }
 
     @Test
-    public void testConn() throws Exception {
-        Properties prop = Util.getBooksProperties();
-        String DB_URL =prop.getProperty("DB_URL");
-        String USER =prop.getProperty("DB_USER");
-        String PASS = prop.getProperty("DB_PASSWORD");
+    public void testConn() {
+        Env env = new Env();
+        String DB_URL =env.getEnv("DB_URL");
+        String USER =env.getEnv("DB_USER");
+        String PASS = env.getEnv("DB_PASSWORD");
 
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
             System.out.println("Connection successful!");

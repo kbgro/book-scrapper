@@ -1,19 +1,22 @@
 package com.github.kbgro.books.models;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.math.BigDecimal;
 
 public class Product {
-    private  String id;
-    private  String title;
-    private  String description;
-    private  String imageUrl;
-    private  String category;
-    private  BigDecimal tax;
-    private  BigDecimal price;
-    private  int stock;
-    private  int numberOfReviews;
+    private String id;
+    private String title;
+    private String description;
+    private String imageUrl;
+    private String category;
+    private BigDecimal tax;
+    private BigDecimal price;
+    private int stock;
+    private int numberOfReviews;
 
-    public Product() {}
+    public Product() {
+    }
 
     public String getId() {
         return id;
@@ -85,5 +88,11 @@ public class Product {
 
     public void setNumberOfReviews(int numberOfReviews) {
         this.numberOfReviews = numberOfReviews;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%d,%d",
+                id, title, StringEscapeUtils.escapeCsv(description), imageUrl, category, tax, price, stock, numberOfReviews);
     }
 }
