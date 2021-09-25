@@ -1,4 +1,6 @@
-package com.github.kbgro.books.utils;
+package com.github.kbgro.books.cli;
+
+import com.github.kbgro.books.utils.Util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,9 +11,14 @@ import java.util.Properties;
 
 public class Cli {
     private final Map<String, String> map = new HashMap<>();
+    private boolean useDb;
 
     public Map<String, String> getMap() {
         return map;
+    }
+
+    public boolean useDb() {
+        return useDb;
     }
 
     /**
@@ -42,6 +49,8 @@ public class Cli {
             String dbUrl = String.format("jdbc:mysql://%s:%s/%s", host, port, db);
             try {
                 Connection conn = DriverManager.getConnection(dbUrl, user, pass);
+                useDb = true;
+                map.put("-dbUrl", dbUrl);
                 conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
