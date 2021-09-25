@@ -1,10 +1,9 @@
 package com.github.kbgro.books.utils;
 
-import com.github.kbgro.books.Books;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Env {
-    private static final Logger logger = LoggerFactory.getLogger(Books.class);
+    private static final Logger logger = LoggerFactory.getLogger(Env.class);
     private final Map<String, String> envMap = new HashMap<>();
 
     public Env() {
@@ -23,6 +22,9 @@ public class Env {
     public void loadEnv() {
         Path pwd = Paths.get(System.getProperty("user.dir"));
         Path envPath = pwd.resolve(".env");
+
+        logger.debug(String.valueOf(envPath));
+
         loadEnv(envPath);
     }
 
