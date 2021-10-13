@@ -5,9 +5,7 @@ import com.github.kbgro.books.utils.Util;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class Cli {
     private final Map<String, String> map = new HashMap<>();
@@ -82,8 +80,11 @@ public class Cli {
      * @throws Exception raised on invalid or non enough arguments.
      */
     public void parse(String[] args) throws Exception {
-        if (args.length < 2)
+        if (args.length < 1)
             throw new Exception("Not enough arguments.");
+
+        String[] truthy = new String[]{"-all", "-h", "-lc"};
+        List<String> booleans = new ArrayList<>(Arrays.asList(truthy));
 
         String currentKey = "";
         for (final String arg : args) {
@@ -92,7 +93,7 @@ public class Cli {
                     throw new Exception("Not enough arguments.");
                 } else if (arg.contains("-")) {
                     currentKey = arg;
-                    if (arg.equals("-all")) {
+                    if (booleans.contains(arg)) {
                         currentKey = addCommand(currentKey, "");
                     }
                 }
@@ -114,18 +115,20 @@ public class Cli {
     public String help() {
         Properties prop = Util.getBooksProperties();
         int descLen = 10;
+        int descLen2 = 13;
         int optLen = 5;
         String newLine = "\n";
         String tab = "\t";
-        String exampleTitle = "java -jar book-scrapper.jar ";
+        String exampleTitle = String.format("java -jar book-%s.jar ", prop.getProperty("APP_VERSION"));
 
         return prop.getProperty("APP_NAME") + " " + prop.getProperty("APP_VERSION") + newLine +
 
                 createExampleHeading("Crawl: options", newLine) +
-                createOptionHelp("-c", optLen, "category", descLen, "Scrape books by category", tab) +
-                createOptionHelp("-page", optLen, "page no", descLen, "Scrape books by page from page 1-50", tab) +
-                createOptionHelp("-all", optLen, "", descLen, "Scrape all books", tab) +
-                createOptionHelp("-l", optLen, "limit", descLen, "Limit of books to scrape e.g 10", tab) +
+                createOptionHelp("-c", optLen, "category", descLen2, "Scrape books by category", tab) +
+                createOptionHelp("-page", optLen, "page no", descLen2, "Scrape books by page from page 1-50", tab) +
+                createOptionHelp("-all", optLen, "", descLen2, "Scrape all books", tab) +
+                createOptionHelp("-l", optLen, "limit", descLen2, "Limit of books to scrape e.g 10", tab) +
+                createOptionHelp("-lc", optLen, "list category", descLen2, "List available categories", tab) +
 
                 createExampleHeading("Storage: options", newLine) +
                 createOptionHelp("-o", optLen, "output", descLen, "Output to a csv file", tab) +

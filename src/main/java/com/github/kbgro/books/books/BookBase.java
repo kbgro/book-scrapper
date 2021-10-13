@@ -1,16 +1,19 @@
 package com.github.kbgro.books.books;
 
 import com.github.kbgro.books.App;
+import com.github.kbgro.books.client.Request;
 import com.github.kbgro.books.factory.SimpleProductFactory;
 import com.github.kbgro.books.models.Product;
 import com.github.kbgro.books.pages.HomePage;
 import com.github.kbgro.books.pages.ProductPage;
 import com.github.kbgro.books.pages.SinglePage;
 import com.github.kbgro.books.repository.BooksRepository;
-import org.openqa.selenium.WebDriver;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +23,6 @@ public abstract class BookBase {
 
     protected static final String BOOK_URL = "https://books.toscrape.com";
 
-    protected WebDriver driver;
     protected Map<String, String> categoryLinks;
     protected Set<String> categories;
     protected BooksRepository booksRepository;
@@ -28,15 +30,28 @@ public abstract class BookBase {
     protected int processedLinks;
     protected int limit = 0;
 
-    public BookBase(BooksRepository repository, WebDriver driver) {
-        this.booksRepository = repository;
-        this.driver = driver;
-
-        logger.info("Collecting Homepage");
-
-        HomePage homePage = new HomePage(driver);
+    public void loadHome() {
+        if (categories != null)
+            return;
+        Document doc = Request.get(BOOK_URL);
+        HomePage homePage = new HomePage(doc);
         categoryLinks = homePage.getCategoryLinks();
         categories = categoryLinks.keySet();
+        logger.debug(String.valueOf(categoryLinks));
+        logger.debug(String.valueOf(categoryLinks.values()));
+    }
+
+    public BookBase(BooksRepository repository) {
+        this.booksRepository = repository;
+        loadHome();
+    }
+
+    public String getCategoriesNames() {
+        logger.info("Collecting Homepage");
+
+        Object[] results = categoryLinks.keySet().toArray();
+        Arrays.sort(results);
+        return StringUtils.join(results, "\n");
     }
 
     /**
@@ -52,8 +67,8 @@ public abstract class BookBase {
             throw new Exception(String.format("scrapeByCategory:: No such '%s' category", category));
         }
 
-        driver.get(categoryLinks.get(category));
-        SinglePage singlePage = new SinglePage(driver);
+        Document doc = Request.get(categoryLinks.get(category));
+        SinglePage singlePage = new SinglePage(doc);
         scrapeNext(singlePage);
 
         logger.info("[ Category ] Finishing!");
@@ -69,10 +84,10 @@ public abstract class BookBase {
 
         logger.info("[ Page ] ({}) Starting", page);
 
-        driver.get(pageUrl);
+        Document doc = Request.get(pageUrl);
         processPageProducts(
-                new SinglePage(driver).getProductLinks(),
-                String.format("[ Page ] ( %s ):", page)
+            new SinglePage(doc).getProductLinks(),
+            String.format("[ Page ] ( %s ):", page)
         );
 
         logger.info("[ Page ] ({}) Finishing!s", page);
@@ -84,8 +99,8 @@ public abstract class BookBase {
     public void scrapeE2E() {
         logger.info("[ E2E ] Starting E2E");
 
-        driver.get(BOOK_URL);
-        scrapeNext(new SinglePage(driver));
+        Document doc = Request.get(BOOK_URL);
+        scrapeNext(new SinglePage(doc));
 
         logger.info("[ E2E ] Stopping E2E");
     }
@@ -98,12 +113,12 @@ public abstract class BookBase {
         do {
             limit++;
             if (started) {
-                driver.get(singlePage.getNextLink());
+                Document doc = Request.get(singlePage.getNextLink());
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException ignored) {
                 }
-                singlePage = new SinglePage(driver);
+                singlePage = new SinglePage(doc);
             }
 
             logger.info("{} Starting E2E", starter);
@@ -112,16 +127,16 @@ public abstract class BookBase {
             if (finished) break;
             if (!started) started = true;
         }
-        while (singlePage.hasNextLink());
+        while (singlePage.hasNextPage());
     }
 
     private boolean processPageProducts(List<String> productLinks, String starter) {
         int itemNumber = 1;
         for (final String link : productLinks) {
             logger.info("{} [ " + itemNumber + " ] Trying product --> " + link, starter);
-            driver.get(link);
+            Document doc = Request.get(link);
 
-            final ProductPage productPage = new ProductPage(driver);
+            final ProductPage productPage = new ProductPage(doc);
             logger.info("{} Collecting Product Page, Title:: " + productPage.getTitle(), starter);
 
             final Product product = new SimpleProductFactory().newProduct(productPage);

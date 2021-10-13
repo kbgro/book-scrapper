@@ -16,6 +16,10 @@ public class CsvRepository implements BooksRepository {
         this.filename = Paths.get(System.getProperty("user.dir"), filename);
     }
 
+    public CsvRepository(Path filename) {
+        this.filename = filename;
+    }
+
     @Override
     public void add(Product product) {
         try {

@@ -1,105 +1,57 @@
 package com.github.kbgro.books.pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SinglePage {
-    private final WebDriver driver;
+public class SinglePage implements Page {
+    private final Document doc;
 
-    @FindBy(css = "ul.pager li.previous a")
-    WebElement previous;
+    Element previous;
+    Element current;
+    Element next;
+    List<Element> productLinks;
 
-    @FindBy(css = "ul.pager li.next a")
-    WebElement next;
-
-    @FindBy(css = "ul.pager li.current")
-    WebElement current;
-
-    @FindBy(css = "ol.row li .image_container>a")
-    List<WebElement> productLinks;
-
-    String currentText;
-    String nextLink;
-    String previousLink;
-    boolean hasNextLink;
-    boolean hasPrevLink;
-
-    public SinglePage(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-        initLinks();
+    public SinglePage(Document doc) {
+        this.doc = doc;
+        initElements(doc);
     }
 
-    /**
-     * Initializes *Links members. This is to avoid not Such Element when a get is called on driver
-     * element and webpage changes
-     */
-    public void initLinks() {
-        if (hasPrevPage())
-            previousLink = previous.getAttribute("href");
-        else previousLink = null;
-
-        if (hasNextPage())
-            nextLink = next.getAttribute("href");
-        else nextLink = null;
-
-        try {
-            currentText = current.getText().strip();
-        } catch (NoSuchElementException ignored) {
-            currentText = "Page 1 of 1";
-        }
-        hasNextLink = nextPrevElement("ul.pager li.next a") != null;
-        hasPrevLink = nextPrevElement("ul.pager li.previous a") != null;
+    @Override
+    public void initElements(Document doc) {
+        previous = doc.selectFirst("ul.pager li.previous a");
+        current = doc.selectFirst("ul.pager li.current");
+        next = doc.selectFirst("ul.pager li.next a");
+        productLinks = doc.select("ol.row li .image_container>a");
     }
 
     public String getPreviousLink() {
-        return previousLink;
+        return previous.attr("abs:href");
     }
 
     public String getPageNumber() {
-        return currentText;
+        return current != null ? current.text().strip() : "Page 1 of 1";
     }
 
     public String getNextLink() {
-        return nextLink;
+        return next.attr("abs:href");
     }
 
     public boolean hasNextPage() {
-        return nextPrevElement("ul.pager li.next a") != null;
+        return doc.selectFirst("ul.pager li.next a") != null;
     }
 
     public boolean hasPrevPage() {
-        return nextPrevElement("ul.pager li.previous a") != null;
-    }
-
-    public boolean hasNextLink() {
-        return hasNextLink;
-    }
-
-    public boolean hasPrevLink() {
-        return hasPrevLink;
+        return doc.selectFirst("ul.pager li.previous a") != null;
     }
 
     public List<String> getProductLinks() {
         List<String> links = new ArrayList<>(20);
-        for (final WebElement link : productLinks)
-            links.add(link.getAttribute("href").strip());
-        return links;
-    }
-
-    private WebElement nextPrevElement(String css) {
-        WebElement nextPrev = null;
-        try {
-            nextPrev = driver.findElement(By.cssSelector(css));
-        } catch (NoSuchElementException ignored) {
+        for (final Element link : productLinks) {
+            links.add(link.attr("abs:href").strip());
         }
-        return nextPrev;
+        return links;
     }
 }
