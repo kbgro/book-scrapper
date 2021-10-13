@@ -175,4 +175,4 @@ buildNumber.properties
 *.env
 !sample.env
 *.csv
-# End of https://www.toptal.com/developers/gitignore/api/intellij,maven,java,visualstudiocode
+.idea/
