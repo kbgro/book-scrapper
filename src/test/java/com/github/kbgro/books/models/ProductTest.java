@@ -1,35 +1,30 @@
 package com.github.kbgro.books.models;
 
-import com.github.kbgro.books.pages.ProductPage;
 import com.github.kbgro.books.factory.SimpleProductFactory;
-import org.junit.jupiter.api.AfterAll;
+import com.github.kbgro.books.pages.ProductPage;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.concurrent.TimeUnit;
 
 class ProductTest {
-    private static WebDriver driver;
+    private static Document doc;
     private static Product product;
 
     @BeforeAll
     static void setUp() {
-        driver = new FirefoxDriver();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("https://books.toscrape.com/catalogue/chase-me-paris-nights-2_977/index.html");
+        try {
+            doc = Jsoup.connect("https://books.toscrape.com/catalogue/chase-me-paris-nights-2_977/index.html").get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        ProductPage productPage = new ProductPage(driver);
+        ProductPage productPage = new ProductPage(doc);
         product = new SimpleProductFactory().newProduct(productPage);
-    }
-
-    @AfterAll
-    static void tearDown() {
-        driver.quit();
     }
 
     @Test
@@ -45,8 +40,8 @@ class ProductTest {
     @Test
     public void testProductImage() {
         Assertions.assertEquals(
-                product.getImageUrl(),
-                "https://books.toscrape.com/media/cache/6c/84/6c84fcf7a53b02b6e763de7272934842.jpg"
+            product.getImageUrl(),
+            "https://books.toscrape.com/media/cache/6c/84/6c84fcf7a53b02b6e763de7272934842.jpg"
         );
     }
 

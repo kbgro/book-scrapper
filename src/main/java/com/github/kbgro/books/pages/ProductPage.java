@@ -1,43 +1,38 @@
 package com.github.kbgro.books.pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ProductPage {
-    @FindBy(css = "#product_gallery img")
-    WebElement productImage;
+public class ProductPage implements Page {
+    Element productImage;
+    Element title;
+    Element price;
+    Element stock;
+    Element description;
+    Element category;
+    List<Element> productInfo;
 
-    @FindBy(css = ".col-sm-6.product_main h1")
-    WebElement title;
+    public ProductPage(Document doc) {
+        initElements(doc);
+    }
 
-
-    @FindBy(css = ".col-sm-6.product_main p.price_color")
-    WebElement price;
-
-    @FindBy(css = ".col-sm-6.product_main p.instock.availability")
-    WebElement stock;
-
-    @FindBy(css = "#product_description + p")
-    WebElement description;
-
-    @FindBy(css = "ul.breadcrumb li:nth-last-child(2)")
-    WebElement category;
-
-    @FindBy(css = ".product_page table tr")
-    List<WebElement> productInfo;
-
-    public ProductPage(WebDriver driver) {
-        PageFactory.initElements(driver, this);
+    @Override
+    public void initElements(Document doc) {
+        productImage = doc.selectFirst("#product_gallery img");
+        title = doc.selectFirst(".col-sm-6.product_main h1");
+        price = doc.selectFirst(".col-sm-6.product_main p.price_color");
+        stock = doc.selectFirst(".col-sm-6.product_main p.instock.availability");
+        description = doc.selectFirst("#product_description + p");
+        category = doc.selectFirst("ul.breadcrumb li:nth-last-child(2)");
+        productInfo = doc.select(".product_page table tr");
     }
 
     public BigDecimal getPrice() {
@@ -45,26 +40,26 @@ public class ProductPage {
     }
 
     public String getTitle() {
-        return title.getText().strip();
+        return title.text().strip();
     }
 
     public String getDescription() {
-        return description.getText().strip();
+        return description.text().strip();
     }
 
     public String getProductImageUrl() {
-        return productImage.getAttribute("src").strip();
+        return productImage.attr("abs:src").strip();
     }
 
     public String getCategory() {
-        return category.getText().strip();
+        return category.text().strip();
     }
 
     public Map<String, String> getProductInfo() {
         Map<String, String> productInfos = new HashMap<>();
-        for (final WebElement tr : productInfo) {
-            String th = tr.findElement(By.tagName("th")).getText().strip();
-            String td = tr.findElement(By.tagName("td")).getText().strip();
+        for (final Element tr : productInfo) {
+            String th = Objects.requireNonNull(tr.selectFirst("th")).text().strip();
+            String td = Objects.requireNonNull(tr.selectFirst("td")).text().strip();
             productInfos.put(th, td);
         }
         productInfos.put("Availability", extractMoney(stock).toString());
@@ -72,8 +67,8 @@ public class ProductPage {
         return productInfos;
     }
 
-    private BigDecimal extractMoney(WebElement element) {
-        return extractMoney(element.getText());
+    private BigDecimal extractMoney(Element element) {
+        return extractMoney(element.text());
     }
 
     private BigDecimal extractMoney(String element) {

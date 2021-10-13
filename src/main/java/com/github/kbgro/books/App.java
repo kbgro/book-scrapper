@@ -7,12 +7,9 @@ import com.github.kbgro.books.cli.Command.ListCategoriesCommand;
 import com.github.kbgro.books.cli.Command.PageCommand;
 import com.github.kbgro.books.cli.Option;
 import com.github.kbgro.books.factory.ConnectionFactory;
-import com.github.kbgro.books.factory.DriverFactory;
 import com.github.kbgro.books.repository.BooksRepository;
 import com.github.kbgro.books.repository.CsvRepository;
 import com.github.kbgro.books.repository.DbRepository;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +22,6 @@ public class App {
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     private static Connection conn;
-    private static WebDriver driver;
 
     public static void tearDown() {
         try {
@@ -33,14 +29,8 @@ public class App {
                 logger.info("Closing DB Connection.");
                 conn.close();
             }
-
-            if (driver != null) {
-                logger.info("Shutting down driver.");
-                driver.quit();
-            }
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (WebDriverException ignored) {
         }
     }
 
@@ -63,7 +53,6 @@ public class App {
 
             int limit = Integer.parseInt(c.getMap().getOrDefault("-l", String.valueOf(0)));
             BooksRepository repository;
-            driver = DriverFactory.getDriver();
 
             if (c.useDb()) {
                 conn = ConnectionFactory.getConnection(c.getMap().get("-dbUrl"), c.getMap().get("-u"), c.getMap().get("-p"));
@@ -79,7 +68,7 @@ public class App {
 
             logger.info("Starting Application...");
 
-            Books books = new Books(repository, driver, limit);
+            Books books = new Books(repository, limit);
 
             Option option = new Option();
 

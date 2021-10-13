@@ -1,32 +1,25 @@
 package com.github.kbgro.books.pages;
 
-import com.github.kbgro.books.pages.HomePage;
-import org.junit.jupiter.api.AfterEach;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
 
 class HomePageTest {
-    private WebDriver driver;
     private HomePage homePage;
+    private Document doc;
 
     @BeforeEach
     public void setUp() {
-        driver = new FirefoxDriver();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-        driver.get("https://books.toscrape.com");
-
-        homePage = new HomePage(driver);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        driver.quit();
+        try {
+            doc = Jsoup.connect("https://books.toscrape.com").get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        homePage = new HomePage(doc);
     }
 
     @Test
@@ -34,5 +27,4 @@ class HomePageTest {
         var cat = homePage.titledCategories();
         Assertions.assertEquals(cat.keySet().size(), 51);
     }
-
 }
