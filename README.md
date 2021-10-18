@@ -18,7 +18,7 @@ set MYSQL_PASSWORD="your_password"
 
 ### Usage
 ```bash
-Books Scrapper CLI v2.0.0
+Books Scrapper CLI v3.0.1
 
 Crawl: options
 -c   	category     	Scrape books by category
@@ -37,18 +37,18 @@ Storage: options
 
 Examples
 Scrape 5 History books
-	java -jar book-v2.0.0.jar -c History -l 5 -o history-books.csv
+	java -jar book-v3.0.1.jar -c History -l 5 -o history-books.csv
 
 Scrape 5 books from page 22
-	java -jar book-v2.0.0.jar -page 22 -l 5 -o page22-books.csv
+	java -jar book-v3.0.1.jar -page 22 -l 5 -o page22-books.csv
 
 SScrape all books
-	java -jar book-v2.0.0.jar -all -o page22-books.csv
+	java -jar book-v3.0.1.jar -all -o page22-books.csv
 
 Scrape all books and save to database
-	java -jar book-v2.0.0.jar -all -p password -u user -db books
+	java -jar book-v3.0.1.jar -all -p password -u user -db books
 
 Scrape 5 Fiction books and save to database providing host and port
-	java -jar book-v2.0.0.jar -all -host 127.0.0.1 -p 13306 -p password -u user -db books
+	java -jar book-v3.0.1.jar -all -host 127.0.0.1 -p 13306 -p password -u user -db books
 	
 ```
