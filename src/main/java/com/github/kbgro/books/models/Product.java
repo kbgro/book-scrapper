@@ -93,6 +93,8 @@ public class Product {
     @Override
     public String toString() {
         return String.format("%s,%s,%s,%s,%s,%s,%s,%d,%d",
-                id, title, StringEscapeUtils.escapeCsv(description), imageUrl, category, tax, price, stock, numberOfReviews);
+            id, StringEscapeUtils.escapeCsv(title), StringEscapeUtils.escapeCsv(description),
+            imageUrl, StringEscapeUtils.escapeCsv(category), tax, price, stock, numberOfReviews
+        );
     }
 }
